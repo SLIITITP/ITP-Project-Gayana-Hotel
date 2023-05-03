@@ -1,0 +1,210 @@
+import React, { Component } from 'react';
+import axios from 'axios';
+import swal from 'sweetalert';
+
+export default class Edit_Menu extends Component{
+
+// Make changes to the post
+  constructor(props){
+    super(props);
+    this.state={
+        Item_Name:"",
+        Price:"",
+        Qty:"",
+        status:"",
+        Tot_Amount:"",
+        CreatedAt:""
+    }
+  }
+  handleChange = (event) => {
+    this.setState({ status: event.target.value });
+  };
+
+  handleInputChange = (e) =>{
+    const {name,value} = e.target;
+
+    this.setState({
+      ...this.state,
+      [name]:value
+    })
+
+  }
+
+  onSubmit = (e) =>{
+
+    e.preventDefault();
+    const id = this.props.match.params.id;
+
+    const {Item_Name,Price,Qty,status,Tot_Amount,CreatedAt} = this.state;
+
+    const data ={
+       Item_Name:Item_Name,
+        Price:Price,
+        Qty:Qty,
+        status:status,
+        Tot_Amount,Tot_Amount,
+        CreatedAt:CreatedAt
+    }
+ 
+    console.log(data)
+    /// Validation 
+
+    const cuem = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+
+    if(Item_Name.length === 0  || Price.length === 0 || Qty.length === 0 || status.length === 0 || Tot_Amount.length === 0 || CreatedAt.length === 0  ){
+      swal(" Fields Cannot empty !","Please enter all data !", "error");
+    }else if(Item_Name.length < 4 ){
+      swal("Invalid  Name !", "Length shuld be greater than 4 !", "error");
+    }
+    else{
+
+      axios.put(`/menu_Details/update/${id}`,data).then((res) =>{
+      if(res.data.success){
+        this.setState(
+          {
+           Item_Name:"",
+            Price:"",
+            Qty:"",
+            status:"",
+            Tot_Amount:"",
+            CreatedAt:""
+          }
+        )
+      }
+    });
+    swal({
+      title: "Done!",
+      text: "Update Successful",
+      icon: "success",
+      button: "Okay!"
+  })
+  .then((value) => {
+      window.location = '/Menu_Details'; // 
+  });}
+  }
+
+
+  componentDidMount(){
+
+    const id = this.props.match.params.id;
+
+    axios.get(`/Menu_Details/${id}`).then((res) =>{
+
+      if(res.data.success){
+        this.setState({
+         
+          Item_Name:res.data.post.Item_Name,
+          Price:res.data.post.Price,
+          Qty:res.data.post.Qty,
+          status:res.data.post.status,
+          Tot_Amount:res.data.post.Tot_Amount,
+          CreatedAt:res.data.post.CreatedAt
+
+        });
+
+        console.log(this.state.post);
+      }
+    })
+
+  }
+
+  render() {
+    const { status } = this.state;
+    return (
+    <div>
+      <div className style={{ backgroundColor:'#F1F1F1', backgroundSize: 'cover'}}> <br/>
+        <div className="col-md-8 mt-4 mx-auto">
+          <h1 className="text-center" > <font face = "Comic sans MS" size ="6" > Edit Menu Details </font> </h1> 
+          <br/>
+          <form className="needs-validation" noValidate style={{backgroundColor: "#e0f6fc", 
+          }}>
+          <br/><br/>
+
+          <div class="form-group" style={{marginLeft:"100px", marginRight:"100px"}} >
+              <label><strong>Item_Name :</strong></label>
+              <input type="text"
+              className="form-control"
+              name="Item_Name" 
+              placeholder="Enter Item Name"
+              value={this.state.Item_Name}
+              onChange={this.handleInputChange} 
+              style={{backgroundColor: "#ffff", marginTop:"10px",}} />
+          </div><br/>
+
+
+          <div class="form-group" style={{marginLeft:"100px", marginRight:"100px"}} >
+              <label><strong>Price :</strong></label>
+              <input type="number"
+              className="form-control"
+              name="Price" 
+              placeholder="Enter Price"
+              value={this.state.Price}
+              onChange={this.handleInputChange} 
+              style={{backgroundColor: "#ffff", marginTop:"10px",}} />
+          </div><br/>
+
+          <div class="form-group" style={{marginLeft:"100px", marginRight:"100px"}} >
+              <label><strong>Quantity :</strong></label>
+              <input type="number"
+              className="form-control"
+              name="Qty" 
+              placeholder="Enter Quantity"
+              value={this.state.Qty}
+              onChange={this.handleInputChange} 
+              style={{backgroundColor: "#ffff", marginTop:"10px",}} />
+          </div><br/>
+
+          <div class="form-group" style={{marginLeft:"100px", marginRight:"100px"}} >
+          <label><strong>Status :</strong></label>
+          <div>
+          <select value={status} onChange={this.handleChange} style={{backgroundColor: "#ffff", marginTop:"10px",}}>
+              <option value="On Stock">On Stock</option>
+              <option value="Not Available">Not Available</option>
+            </select>
+         </div>
+         </div>
+         <br/>
+
+          <div class="form-group" style={{marginLeft:"100px", marginRight:"100px"}} >
+              <label><strong>Total Amount:</strong></label>
+              <input type="number"
+              className="form-control"
+              name="Tot_Amount" 
+              placeholder="Enter Total Amount"
+              value={this.state.Tot_Amount}
+              onChange={this.handleInputChange} 
+              style={{backgroundColor: "#ffff", marginTop:"10px",}} />
+          </div><br/>
+
+          <div class="form-group" style={{marginLeft:"100px", marginRight:"100px"}} >
+              <label><strong>Created At:</strong></label>
+              <input type="Date"
+              className="form-control"
+              name="CreatedAt" 
+              placeholder="Enter Date"
+              value={this.state.CreatedAt}
+              onChange={this.handleInputChange} 
+              style={{backgroundColor: "#ffff", marginTop:"10px",}} />
+          </div><br/>
+            
+
+
+            <div className="text-center" > 
+            <button className="btn btn-success" type="submit" style={{marginTop:'15px'}} onClick={this.onSubmit}>
+              <i className="far fa-check-square"></i>
+              &nbsp; Update      
+              </button>&nbsp;
+            <a href="/Payment_Details"><button type="button" style={{marginTop:'15px'}} onClick={this.onClick} class="btn btn-warning"><i class="fa fa-close"></i>&nbsp;Cancel</button></a>
+            {/* ListRegistration */}
+            </div>
+            <br/>
+          </form>
+
+          <br/>
+          </div>
+        </div>
+        </div>
+    )
+   }
+}
